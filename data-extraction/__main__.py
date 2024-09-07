@@ -1,4 +1,4 @@
-from chessdotcom import get_player_profile, Client
+from chessdotcom import Client, get_player_profile
 
 
 def main():

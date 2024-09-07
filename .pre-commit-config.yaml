@@ -14,21 +14,21 @@ repos:
     hooks:
       - id: black
         name: black
-        entry: black
+        entry: poetry run black
         language: system
         types: [python]
         additional_dependencies: []
 
       - id: isort
         name: isort
-        entry: isort
+        entry: poetry run isort
         language: system
         types: [python]
         additional_dependencies: []
 
       - id: ruff
         name: ruff
-        entry: ruff check
+        entry: poetry run ruff check
         language: system
         types: [python]
         args: ["--fix"]
