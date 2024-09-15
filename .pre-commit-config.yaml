@@ -18,6 +18,7 @@ repos:
         language: system
         types: [python]
         additional_dependencies: []
+        args: [--config=pyproject.toml]
 
       - id: isort
         name: isort

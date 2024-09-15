@@ -4,11 +4,12 @@ version = "0.1.0"
 description = "A big chess analysis using chess.com API."
 authors = ["D'Onofrio, William <16698591+wdonofrio@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "data_extraction"}]
+packages = [{include = "extraction"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 chess-com = "^2.1.0"
+toml = "^0.10.2"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -17,7 +18,11 @@ isort = "^5.13.2"
 black = "^24.8.0"
 ruff = "^0.6.4"
 pre-commit = "^3.8.0"
+types-toml = "^0.10.8.20240310"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"

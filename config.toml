@@ -1,0 +1,5 @@
+[API]
+USER_AGENT = "A chess.com analysis by DataWizards"
+
+[DATA]
+PLAYER_ENTRYPOINT = "fabianocaruana"
