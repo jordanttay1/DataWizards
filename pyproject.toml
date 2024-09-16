@@ -4,8 +4,10 @@ version = "0.1.0"
 description = "A big chess analysis using chess.com API."
 authors = ["D'Onofrio, William <16698591+wdonofrio@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "extraction"}]
-
+packages = [
+    { include = "extraction"},
+    { include = "cache"},
+]
 [tool.poetry.dependencies]
 python = "^3.10"
 chess-com = "^2.1.0"
