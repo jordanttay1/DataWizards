@@ -7,6 +7,7 @@ readme = "README.md"
 packages = [
     { include = "extraction"},
     { include = "cache"},
+    { include = "network"},
 ]
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -17,6 +18,7 @@ pandas = "^2.2.2"
 networkx = "^3.3"
 matplotlib = "^3.9.2"
 scipy = "^1.14.1"
+pyvis = "^0.3.2"
 
 
 [tool.poetry.group.dev.dependencies]

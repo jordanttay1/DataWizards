@@ -3,7 +3,12 @@ from chessdotcom import (
     get_player_game_archives,
     get_player_games_by_month,
     get_player_profile,
+    get_player_stats,
 )
+
+from network import PlayerNode
+
+GAME_TYPE = "chess_rapid"
 
 
 def fetch_archive_games(username: str) -> list[dict]:
@@ -23,6 +28,28 @@ def fetch_archive_games(username: str) -> list[dict]:
         games += get_player_games_by_month(username, year, month).json["games"]
 
     return games
+
+
+def get_player_data(username: str) -> PlayerNode:
+    """Get the player data for a given username.
+
+    Args:
+        username (str): The username of the player.
+
+    Returns:
+        PlayerNode: The player node object.
+    """
+    profile = get_player_profile(username).json.get("player")
+    if not profile:
+        raise ValueError(f"Player {username} not found.")
+    stats = get_player_stats(username).json.get("stats").get(GAME_TYPE)
+    return PlayerNode(
+        uid=profile.get("player_id"),
+        name=profile.get("name"),
+        username=profile.get("username"),
+        country=profile.get("country").split("/")[-1],
+        rating=stats.get("last").get("rating"),
+    )
 
 
 def main():
