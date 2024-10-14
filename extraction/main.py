@@ -65,7 +65,7 @@ def get_opponents_by_month(
     return opponents
 
 
-def get_player_data(username: str) -> PlayerNode:
+def get_player_data(username: str) -> Optional[PlayerNode]:
     """Get the player data for a given username.
 
     Args:
@@ -78,6 +78,8 @@ def get_player_data(username: str) -> PlayerNode:
     if not profile:
         raise ValueError(f"Player {username} not found.")
     stats = get_player_stats(username).json.get("stats").get(GAME_TYPE)
+    if stats is None:
+        return None
     return PlayerNode(
         uid=profile.get("player_id"),
         name=profile.get("name"),
