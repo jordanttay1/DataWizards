@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from chessdotcom import (
     Client,
     get_player_game_archives,
@@ -30,6 +33,38 @@ def fetch_archive_games(username: str) -> list[dict]:
     return games
 
 
+def get_opponents_by_month(
+    username: str, year: Optional[int] = None, month: Optional[int] = None
+) -> set[str]:
+    """Get the opponents of a player by month.
+
+    Args:
+        username (str): The username of the player.
+        year (Optional[int], optional): The year to filter by. Defaults to None.
+        month (Optional[int], optional): The month to filter by. Defaults to None.
+
+    Returns:
+        set[str]: A set of opponents the player has played against.
+    """
+    if year is None:
+        year = datetime.now().year
+    if month is None:
+        month = datetime.now().month
+
+    games = get_player_games_by_month(username, year, month).json.get("games", [])
+    opponents = set()
+    for game in games:
+        opponent = (
+            game["black"]["username"]
+            if game["white"]["username"] == username
+            else game["white"]["username"]
+        )
+        opponents.add(opponent)
+    if not opponents:
+        print(f"No opponents found for {username} in {year}-{month}")
+    return opponents
+
+
 def get_player_data(username: str) -> PlayerNode:
     """Get the player data for a given username.
 
@@ -48,7 +83,7 @@ def get_player_data(username: str) -> PlayerNode:
         name=profile.get("name"),
         username=profile.get("username"),
         country=profile.get("country").split("/")[-1],
-        rating=stats.get("last").get("rating"),
+        rating=stats.get("last", {}).get("rating", 0),
     )
 
 
