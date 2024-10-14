@@ -32,6 +32,7 @@ pre-commit = "^3.8.0"
 types-toml = "^0.10.8.20240310"
 pytest = "^8.3.3"
 mypy = "^1.11.2"
+pandas-stubs = "^2.2.3.241009"
 
 [build-system]
 requires = ["poetry-core"]
