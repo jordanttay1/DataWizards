@@ -17,7 +17,7 @@ class PlayerNode:
 def add_node(graph: nx.Graph, node: PlayerNode) -> nx.Graph:
     """Add a node to the graph if it doesn't already exist."""
     if node.uid not in graph:
-        graph.add_node(node.uid, **asdict(node))
+        graph.add_node(node.username, **asdict(node))
     return graph
 
 
