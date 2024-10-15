@@ -90,12 +90,17 @@ def update_graph(clickData, graph_data):
     print(f"Clicked node: {clicked_node}")
 
     graph = data_to_graph(graph_data)
-    origin_node = get_player_data(clicked_node)
-    for opponent in get_opponents_by_month(clicked_node):
-        node = get_player_data(opponent)
-        graph = add_edge(graph, origin_node, node)
+    _add_opponents(graph, clicked_node)
 
     return create_figure(graph), graph_to_data(graph)
+
+
+def _add_opponents(graph: nx.Graph, username: str) -> nx.Graph:
+    """Add opponents to the graph."""
+    player = get_player_data(username)
+    for opponent in get_opponents_by_month(username):
+        node = get_player_data(opponent)
+        graph = add_edge(graph, player, node)
 
 
 def initialize_graph(username: str = "fabianocaruana") -> nx.Graph:
@@ -110,6 +115,7 @@ def initialize_graph(username: str = "fabianocaruana") -> nx.Graph:
     graph = nx.Graph()
     player = get_player_data(username)
     graph = add_node(graph, player)
+    _add_opponents(graph, username)
     return graph
 
 
