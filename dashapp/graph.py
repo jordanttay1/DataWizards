@@ -120,9 +120,7 @@ def _add_opponents(graph: nx.Graph, username: str) -> nx.Graph:
     if (player := get_player_data(username)) is None:
         raise ValueError(f"Player {username} not found. This is unexpected.")
     for opponent in get_opponents_by_month(username):
-        if (node := get_player_data(opponent)) and abs(
-            node.rating - player.rating
-        ) > 300:
+        if node := get_player_data(opponent):
             graph = add_edge(graph, player, node)
 
 
