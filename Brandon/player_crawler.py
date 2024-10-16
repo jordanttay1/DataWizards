@@ -118,7 +118,7 @@ Client.request_config["headers"]["User-Agent"] = (
 
 # Start with the initial user
 start_user = "bkdog99"
-searched_users = set()
+searched_users: set = set()
 
 # Use a global thread pool for all recursive tasks
 with concurrent.futures.ThreadPoolExecutor(max_workers=7) as executor:
