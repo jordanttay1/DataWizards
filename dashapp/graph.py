@@ -1,4 +1,5 @@
 import networkx as nx
+import numpy as np
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 from matplotlib import pyplot as plt
@@ -50,6 +51,9 @@ def create_figure(graph: nx.Graph):
     node_x = [pos[node][0] for node in graph.nodes()]
     node_y = [pos[node][1] for node in graph.nodes()]
     node_text = [str(node) for node in graph.nodes()]
+    ratings = [graph.nodes[node].get("rating", 0) for node in graph.nodes()]
+    norm_ratings = (ratings - np.min(ratings)) / (np.max(ratings) - np.min(ratings))
+    node_colors = cmap(norm_ratings)
 
     nodes = go.Scatter(
         x=node_x,
@@ -58,8 +62,11 @@ def create_figure(graph: nx.Graph):
         hoverinfo="text",
         text=node_text,
         marker=dict(
-            size=20,
-            color="red",
+            size=15,
+            color=[
+                f"rgba({int(c[0]*255)}, {int(c[1]*255)}, {int(c[2]*255)}, 1)"
+                for c in node_colors
+            ],
         ),
         showlegend=False,
     )
