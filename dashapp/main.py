@@ -62,8 +62,8 @@ def create_figure(graph: nx.Graph):
 def graph_to_data(graph: nx.Graph):
     """Convert the graph to store both nodes and edges."""
     return {
-        "nodes": list(graph.nodes()),
-        "edges": list(graph.edges()),
+        "nodes": list(graph.nodes(data=True)),
+        "edges": list(graph.edges(data=True)),
     }
 
 
