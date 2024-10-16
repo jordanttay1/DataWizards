@@ -33,5 +33,6 @@ def add_edge(
     if node2.username not in graph:
         graph = add_node(graph, node2)
     if not graph.has_edge(node1.username, node2.username):
-        graph.add_edge(node1.username, node2.username)
+        weight = abs(node1.rating - node2.rating)
+        graph.add_edge(node1.username, node2.username, weight=weight)
     return graph
