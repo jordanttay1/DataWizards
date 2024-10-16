@@ -2,6 +2,7 @@ import networkx as nx
 import plotly.graph_objs as go
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output, State
+from matplotlib import pyplot as plt
 
 from extraction import get_opponents_by_month, get_player_data
 from network import add_edge, add_node
@@ -12,21 +13,39 @@ app = Dash("Network Graph")
 def create_figure(graph: nx.Graph):
     pos = nx.spring_layout(graph)  # May alter if needed
 
-    edge_x = []
-    edge_y = []
-    for edge in graph.edges():
+    min_weight = 0
+    max_weight = max(
+        (data.get("weight", 1) for _, _, data in graph.edges(data=True)), default=1
+    )
+    cmap = plt.get_cmap("plasma")
+
+    edges = []
+    for edge in graph.edges(data=True):
         x0, y0 = pos[edge[0]]
         x1, y1 = pos[edge[1]]
-        edge_x.extend([x0, x1, None])
-        edge_y.extend([y0, y1, None])
-    edges = go.Scatter(
-        x=edge_x,
-        y=edge_y,
-        line=dict(width=1, color="#888"),
-        hoverinfo="none",
-        mode="lines",
-        showlegend=False,
-    )
+
+        weight = edge[-1].get("weight", 1)
+
+        if max_weight > min_weight:
+            normalized_weight = (weight - min_weight) / (max_weight - min_weight)
+        else:
+            normalized_weight = 0
+        color = cmap(normalized_weight)
+        r, g, b = (int(c * 255) for c in color[:3])
+        edge_trace = go.Scatter(
+            x=[x0, x1],
+            y=[y0, y1],
+            line=dict(
+                width=2,
+                color=f"rgba({r}, {g}, {b}, 1)",
+            ),
+            mode="lines",
+            showlegend=False,
+            hoverinfo="none",
+        )
+        edges.append(edge_trace)
+
+    fig = go.Figure(data=edges)
 
     node_x = [pos[node][0] for node in graph.nodes()]
     node_y = [pos[node][1] for node in graph.nodes()]
@@ -45,7 +64,8 @@ def create_figure(graph: nx.Graph):
         showlegend=False,
     )
 
-    fig = go.Figure(data=[edges, nodes])
+    fig.add_trace(nodes)
+
     fig.update_layout(
         showlegend=False,
         hovermode="closest",
