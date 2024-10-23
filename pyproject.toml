@@ -7,6 +7,8 @@ readme = "README.md"
 packages = [
     { include = "extraction"},
     { include = "cache"},
+    { include = "network"},
+    { include = "dashapp"},
 ]
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -17,6 +19,9 @@ pandas = "^2.2.2"
 networkx = "^3.3"
 matplotlib = "^3.9.2"
 scipy = "^1.14.1"
+pyvis = "^0.3.2"
+dash = "^2.18.1"
+plotly = "^5.24.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -26,6 +31,12 @@ black = "^24.8.0"
 ruff = "^0.6.4"
 pre-commit = "^3.8.0"
 types-toml = "^0.10.8.20240310"
+pytest = "^8.3.3"
+mypy = "^1.11.2"
+pandas-stubs = "^2.2.3.241009"
+
+[tool.poetry.scripts]
+dash-app = "dashapp.main:main"
 
 [build-system]
 requires = ["poetry-core"]
