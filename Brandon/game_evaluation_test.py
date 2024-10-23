@@ -10,6 +10,7 @@ import numpy as np
 asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 # Initialize the Stockfish engine
+# https://stockfishchess.org/download/
 engine = chess.engine.SimpleEngine.popen_uci('Brandon/stockfish-engine/stockfish/stockfish-windows-x86-64-avx2.exe')
 
 # Load your JSON file
