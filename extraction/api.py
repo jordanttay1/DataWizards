@@ -16,6 +16,12 @@ def get_player_games_by_month(username: str, year: int, month: int):
 
 
 @cache
+def get_player_games_by_month_pgn(username: str, year: int, month: int):
+    """Get the games of a player by month."""
+    return cdc.get_player_games_by_month_pgn(username, year, month).json
+
+
+@cache
 def get_player_profile(username: str):
     """Get the profile of a player."""
     return cdc.get_player_profile(username).json
