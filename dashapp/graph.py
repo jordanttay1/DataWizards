@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, callback_context
 from matplotlib import pyplot as plt
 
 from extraction import get_opponents_by_month, get_player_data
@@ -161,24 +161,42 @@ def initialize_graph(username: str = "fabianocaruana", depth: int = 1) -> nx.Gra
 )
 def initialize_and_update_graph(n_clicks, clickData, username, depth, graph_data):
     """Initialize and update the graph when the initialize button is clicked."""
-    graph = None
+
+    def initialize_new_graph(username, depth):
+        """Initializes a new graph with given username and depth."""
+        depth_value = int(depth) if depth else 1
+        user = username or "fabianocaruana"
+        graph = initialize_graph(user, depth_value)
+        print(f"Initialized graph with {username}.")
+        return graph
+
+    def update_graph_from_click(graph, clickData):
+        """Updates the graph with additional data based on clicked node."""
+        clicked_node = clickData["points"][0]["text"]
+        print(f"Clicked node: {clicked_node}")
+        _add_opponents(graph, clicked_node)
+
+    def get_default_response(graph):
+        """Creates default responses when no error occurs."""
+        return create_figure(graph), graph_to_data(graph), False, ""
 
     try:
-        if graph_data is None or username is not None:
-            depth_value = int(depth) if depth else 1
-            graph = initialize_graph(username or "fabianocaruana", depth_value)
-            return create_figure(graph), graph_to_data(graph), False, ""
-        if graph is None and graph_data is not None:
-            graph = data_to_graph(graph_data)
+        ctx = callback_context
+        if graph_data is None or (
+            ctx.triggered and ctx.triggered[0]["prop_id"] == "init-button.n_clicks"
+        ):
+            graph = initialize_new_graph(username, depth)
+            return get_default_response(graph)
+
+        graph = data_to_graph(graph_data)
 
         if clickData is not None:
-            clicked_node = clickData["points"][0]["text"]
-            print(f"Clicked node: {clicked_node}")
-            _add_opponents(graph, clicked_node)
+            update_graph_from_click(graph, clickData)
+
+        return get_default_response(graph)
+
     except ValueError as e:
         print(e)
-        fig = create_figure(graph) if graph is not None else {}
-        data = graph_to_data(graph) if graph is not None else None
-        return fig, data, True, str(e)
-
-    return create_figure(graph), graph_to_data(graph), False, ""
+        figure = create_figure(graph) if graph else {}
+        data = graph_to_data(graph) if graph else None
+        return figure, data, True, str(e)
