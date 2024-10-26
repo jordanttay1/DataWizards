@@ -102,40 +102,41 @@ def data_to_graph(graph_data):
     return graph
 
 
-@app.callback(
-    Output("network-graph", "figure"),
-    Output("graph-data", "data"),
-    Input("network-graph", "clickData"),
-    State("graph-data", "data"),
-)
-def update_graph(clickData, graph_data):
-    """Update the graph when a node is clicked."""
-    if clickData is None:
-        return create_figure(data_to_graph(graph_data)), graph_data
-
-    clicked_node = clickData["points"][0]["text"]
-    print(f"Clicked node: {clicked_node}")
-
-    graph = data_to_graph(graph_data)
-    _add_opponents(graph, clicked_node)
-
-    return create_figure(graph), graph_to_data(graph)
-
-
 def _add_opponents(graph: nx.Graph, username: str) -> nx.Graph:
     """Add opponents to the graph."""
     if (player := get_player_data(username)) is None:
-        raise ValueError(f"Player {username} not found. This is unexpected.")
+        raise ValueError(
+            f"Player {username} not found. Is this a valid chess.com username?"
+        )
     for opponent in get_opponents_by_month(username):
         if node := get_player_data(opponent):
             graph = add_edge(graph, player, node)
 
 
-def initialize_graph(username: str = "fabianocaruana") -> nx.Graph:
+def add_opponents_with_depth(graph: nx.Graph, username: str, depth: int) -> nx.Graph:
+    """Recursively add opponents to the graph up to a specified depth."""
+
+    def recursive_add(username: str, current_depth: int):
+        if current_depth > depth:
+            return
+
+        _add_opponents(graph, username)
+
+        opponents = get_opponents_by_month(username)
+        for opponent in opponents:
+            if get_player_data(opponent):
+                recursive_add(opponent, current_depth + 1)
+
+    recursive_add(username, 1)
+    return graph
+
+
+def initialize_graph(username: str = "fabianocaruana", depth: int = 1) -> nx.Graph:
     """_summary_
 
     Args:
         username (str, optional): Player to intialize with. Defaults to "fabianocaruana".
+        depth (int, optional): Depth of the graph. Defaults to 1.
 
     Returns:
         nx.Graph: NetworkX graph object.
@@ -143,5 +144,41 @@ def initialize_graph(username: str = "fabianocaruana") -> nx.Graph:
     graph = nx.Graph()
     player = get_player_data(username)
     graph = add_node(graph, player)
-    _add_opponents(graph, username)
+    add_opponents_with_depth(graph, username, depth)
     return graph
+
+
+@app.callback(
+    Output("network-graph", "figure"),
+    Output("graph-data", "data"),
+    Output("graph-error", "displayed"),
+    Output("graph-error", "message"),
+    Input("init-button", "n_clicks"),
+    Input("network-graph", "clickData"),
+    State("username-input", "value"),
+    State("depth-input", "value"),
+    State("graph-data", "data"),
+)
+def initialize_and_update_graph(n_clicks, clickData, username, depth, graph_data):
+    """Initialize and update the graph when the initialize button is clicked."""
+    graph = None
+
+    try:
+        if graph_data is None or username is not None:
+            depth_value = int(depth) if depth else 1
+            graph = initialize_graph(username or "fabianocaruana", depth_value)
+            return create_figure(graph), graph_to_data(graph), False, ""
+        if graph is None and graph_data is not None:
+            graph = data_to_graph(graph_data)
+
+        if clickData is not None:
+            clicked_node = clickData["points"][0]["text"]
+            print(f"Clicked node: {clicked_node}")
+            _add_opponents(graph, clicked_node)
+    except ValueError as e:
+        print(e)
+        fig = create_figure(graph) if graph is not None else {}
+        data = graph_to_data(graph) if graph is not None else None
+        return fig, data, True, str(e)
+
+    return create_figure(graph), graph_to_data(graph), False, ""

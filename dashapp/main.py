@@ -1,5 +1,3 @@
-import numpy as np
-import pandas as pd
 from dash import dcc, html
 from dash.dependencies import Input, Output
 
@@ -9,59 +7,171 @@ from dashapp.analytics import (
     create_graph_summary,
     create_player_stats,
 )
-from dashapp.graph import create_figure, data_to_graph, graph_to_data, initialize_graph
+from dashapp.graph import data_to_graph
 
 
 def main():
     """Run the Dash app."""
-    graph = initialize_graph()
-
     app.layout = html.Div(
-        style={"flexDirection": "column"},
+        id="app-container",
+        className="light-theme",
+        style={
+            "maxWidth": "1400px",
+            "margin": "auto",
+            "padding": "20px",
+            "borderRadius": "10px",
+            "boxShadow": "0 4px 8px rgba(0, 0, 0, 0.1)",
+            "position": "relative",
+        },
         children=[
-            html.H1(
-                "Chess.com Player Network Analysis by Data Wizards",
-                style={"textAlign": "center"},
-            ),
-            html.P(
-                "Click on a node to explore the player network.",
-                style={"textAlign": "center"},
+            # Floating theme selector
+            html.Div(
+                dcc.RadioItems(
+                    id="theme-selector",
+                    className="radio-button",
+                    options=[
+                        {"label": "Light Mode", "value": "light"},
+                        {"label": "Dark Mode", "value": "dark"},
+                    ],
+                    value="light",
+                    labelStyle={
+                        "display": "inline-block",
+                        "margin-right": "20px",
+                    },
+                    style={"margin": "20px"},
+                ),
+                style={
+                    "display": "flex",
+                    "justifyContent": "flex-end",
+                    "paddingBottom": "10px",
+                },
             ),
             html.Div(
+                style={"flexDirection": "column"},
                 children=[
-                    dcc.Store(id="graph-data", data=graph_to_data(graph)),
-                    dcc.Loading(
-                        id="loading",
-                        type="default",
+                    html.H1(
+                        "Chess.com Player Network Analysis by Data Wizards",
+                        style={"textAlign": "center"},
+                    ),
+                    html.P(
+                        [
+                            "Enter a username to begin exploring!",
+                            html.Br(),
+                            "Click on a node to explore the player network, or increase the depth counter to explore further.",
+                        ],
+                        style={"textAlign": "center"},
+                    ),
+                    # Username input and depth counter
+                    html.Div(
+                        style={"textAlign": "center"},
                         children=[
-                            dcc.Graph(
-                                id="network-graph",
-                                figure=create_figure(graph),
+                            dcc.Input(
+                                id="username-input",
+                                type="text",
+                                placeholder="Enter Chess.com Username",
+                                className="input-field",
+                            ),
+                            html.P(
+                                "Depth:",
+                                className="input-label",
+                            ),
+                            dcc.Input(
+                                id="depth-input",
+                                type="number",
+                                value=1,
+                                min=1,
+                                max=3,
+                                className="input-field depth-input",
                             ),
                         ],
                     ),
-                ],
-            ),
-            html.Div(
-                style={
-                    "flexDirection": "row",
-                    "padding": "10px",
-                },
-                children=[
-                    dcc.Tabs(
-                        id="analytics-tabs",
-                        value="summary-tab",
+                    # Button to Graph
+                    html.Div(
+                        style={"textAlign": "center"},
                         children=[
-                            dcc.Tab(label="Summary", value="summary-tab"),
-                            dcc.Tab(label="Player Stats", value="stats-tab"),
-                            dcc.Tab(label="Anomalies", value="anomaly-tab"),
+                            html.Button(
+                                "Graph",
+                                id="init-button",
+                                n_clicks=0,
+                                style={
+                                    "margin": "10px",
+                                    "width": "150px",
+                                    "height": "40px",
+                                    "fontSize": "16px",
+                                    "fontWeight": "bold",
+                                    "color": "white",
+                                    "backgroundColor": "#007bff",
+                                    "border": "none",
+                                    "borderRadius": "5px",
+                                },
+                            )
                         ],
                     ),
-                    html.Div(id="analytics-content"),
+                    html.Div(
+                        children=[
+                            dcc.Store(id="graph-data", data=None),
+                            dcc.Loading(
+                                id="loading",
+                                type="default",
+                                overlay_style={
+                                    "visibility": "visible",
+                                    "filter": "blur(2px)",
+                                },
+                                children=[
+                                    dcc.Graph(
+                                        id="network-graph",
+                                        className="blur",
+                                        figure={},
+                                    ),
+                                    dcc.ConfirmDialog(
+                                        id="graph-error",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    html.Div(
+                        style={
+                            "flexDirection": "row",
+                            "padding": "10px",
+                        },
+                        children=[
+                            dcc.Tabs(
+                                id="analytics-tabs",
+                                value="summary-tab",
+                                children=[
+                                    dcc.Tab(label="Summary", value="summary-tab"),
+                                    dcc.Tab(label="Player Stats", value="stats-tab"),
+                                    dcc.Tab(label="Anomalies", value="anomaly-tab"),
+                                ],
+                            ),
+                            html.Div(id="analytics-content"),
+                        ],
+                    ),
                 ],
             ),
         ],
     )
+
+    @app.callback(
+        Output("app-container", "className"),
+        Input("theme-selector", "value"),
+    )
+    def toggle_theme(selected_theme):
+        if selected_theme == "dark":
+            return "dark-theme"
+        else:
+            return "light-theme"
+
+    @app.callback(
+        Output("network-graph", "className"),
+        Input("init-button", "n_clicks"),
+    )
+    def remove_blur(n_clicks):
+        """Remove blur effect when the initialize button is clicked."""
+        if n_clicks > 0:
+            return "no-blur"
+        return "blur"
 
     @app.callback(
         Output("analytics-content", "children"),
@@ -69,6 +179,8 @@ def main():
         Input("graph-data", "data"),
     )
     def render_analytics(tab, graph_data):
+        if not graph_data:
+            return html.Div([html.H3("No graph data available.")])
         graph = data_to_graph(graph_data)
         if tab == "summary-tab":
             return create_graph_summary(graph)
