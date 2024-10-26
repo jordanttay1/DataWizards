@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
+from chessdotcom import ChessDotComError
+
 from extraction.api import (
     get_player_game_archives,
     get_player_games_by_month,
@@ -72,9 +74,15 @@ def get_player_data(username: str) -> Optional[PlayerNode]:
     Returns:
         PlayerNode: The player node object.
     """
-    profile = get_player_profile(username).get("player")
+    try:
+        profile = get_player_profile(username).get("player")
+    except ChessDotComError as exc:
+        print(f"Error fetching profile for {username}: {exc}")
+        return None
     if not profile:
-        raise ValueError(f"Player {username} not found.")
+        print(f"Profile not found for {username}")
+        return None
+
     stats = get_player_stats(username).get("stats").get(GAME_TYPE)
     if stats is None:
         return None
