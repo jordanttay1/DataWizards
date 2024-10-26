@@ -1,5 +1,4 @@
-from dash import dcc, html
-from dash.dependencies import Input, Output
+from dash import Input, Output, dcc, html
 
 from dashapp import app
 from dashapp.analytics import (
@@ -80,7 +79,7 @@ def main():
                                 type="number",
                                 value=1,
                                 min=1,
-                                max=3,
+                                max=5,
                                 className="input-field depth-input",
                             ),
                         ],
