@@ -66,13 +66,27 @@ def create_anomaly_stats(graph):
 
 def create_graph_summary(graph):
     """Create a summary of the graph."""
-    num_nodes = len(graph.nodes)
-    num_edges = len(graph.edges)
+    num_nodes = graph.number_of_nodes()
+    num_edges = graph.number_of_edges()
+    average_rating = (
+        np.mean([data["rating"] for _, data in graph.nodes(data=True)])
+        if graph.number_of_nodes() > 0
+        else 0
+    )
+    highest_rating = (
+        max([data["rating"] for _, data in graph.nodes(data=True)], default=0),
+    )
+    lowest_rating = (
+        min([data["rating"] for _, data in graph.nodes(data=True)], default=0),
+    )
     return html.Div(
         [
             html.H3("Graph Summary"),
             html.P(f"Number of nodes: {num_nodes}"),
             html.P(f"Number of edges: {num_edges}"),
+            html.P(f"Average player rating: {average_rating:.2f}"),
+            html.P(f"Highest player rating: {highest_rating[0]}"),
+            html.P(f"Lowest player rating: {lowest_rating[0]}"),
         ]
     )
 
