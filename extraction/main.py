@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Dict, List, Optional
 
 from chessdotcom import ChessDotComError
 
@@ -9,7 +9,7 @@ from extraction.api import (
     get_player_profile,
     get_player_stats,
 )
-from network import PlayerNode
+from network import GameEdge, PlayerDetails, PlayerNode
 
 GAME_TYPE = "chess_rapid"
 
@@ -33,10 +33,10 @@ def fetch_archive_games(username: str) -> list[dict]:
     return games
 
 
-def get_opponents_by_month(
+def get_opponents_and_games_by_month(
     username: str, year: Optional[int] = None, month: Optional[int] = None
-) -> set[str]:
-    """Get the opponents of a player by month.
+) -> Dict[str, List[GameEdge]]:
+    """Get opponents and game details for a player by month.
 
     Args:
         username (str): The username of the player.
@@ -44,25 +44,53 @@ def get_opponents_by_month(
         month (Optional[int], optional): The month to filter by. Defaults to None.
 
     Returns:
-        set[str]: A set of opponents the player has played against.
+        Dict[str, List[GameEdge]]: A dictionary with opponent usernames as keys and lists of GameEdge objects as values.
     """
     if year is None:
         year = datetime.now().year
     if month is None:
         month = datetime.now().month
 
-    games = get_player_games_by_month(username, year, month).get("games", [])
-    opponents = set()
-    for game in games:
-        opponent = (
-            game["black"]["username"]
-            if game["white"]["username"] == username
-            else game["white"]["username"]
+    games_data = get_player_games_by_month(username, year, month).get("games", [])
+    opponents_games: Dict[str, List[GameEdge]] = {}
+
+    for game in games_data:
+        is_white = game["white"]["username"] == username
+        opponent_username = (
+            game["black"]["username"] if is_white else game["white"]["username"]
         )
-        opponents.add(opponent)
-    if not opponents:
+
+        game_edge = GameEdge(
+            pgn=game.get("pgn", ""),
+            time_control=game.get("time_control", ""),
+            time_class=game.get("time_class", ""),
+            rules=game.get("rules", ""),
+            accuracies=game.get("accuracies", {}),
+            eco_code=game.get("eco", ""),
+            white=PlayerDetails(
+                username=game["white"]["username"],
+                rating=game["white"].get("rating", 0),
+                result=game["white"]["result"],
+                uid=game["white"]["uuid"],
+            ),
+            black=PlayerDetails(
+                username=game["black"]["username"],
+                rating=game["black"].get("rating", 0),
+                result=game["black"]["result"],
+                uid=game["black"]["uuid"],
+            ),
+            start_time=game.get("start_time", 0),
+            end_time=game.get("end_time", 0),
+        )
+
+        if opponent_username not in opponents_games:
+            opponents_games[opponent_username] = []
+        opponents_games[opponent_username].append(game_edge)
+
+    if not opponents_games:
         print(f"No opponents found for {username} in {year}-{month}")
-    return opponents
+
+    return opponents_games
 
 
 def get_player_data(username: str) -> Optional[PlayerNode]:

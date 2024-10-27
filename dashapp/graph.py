@@ -1,10 +1,12 @@
+from typing import List, Tuple
+
 import networkx as nx
 import numpy as np
 import plotly.graph_objs as go
 from dash import Input, Output, State, callback_context
 from matplotlib import pyplot as plt
 
-from extraction import get_opponents_by_month, get_player_data
+from extraction import get_opponents_and_games_by_month, get_player_data
 from network import add_edge, add_node
 
 from . import app
@@ -12,7 +14,7 @@ from . import app
 
 def create_figure(graph: nx.Graph):
     """Create a Plotly figure from a NetworkX graph."""
-    pos = nx.spring_layout(graph)  # May alter if needed
+    pos = nx.fruchterman_reingold_layout(graph)  # May alter if needed
 
     min_weight = 0
     max_weight = max(
@@ -102,15 +104,18 @@ def data_to_graph(graph_data):
     return graph
 
 
-def _add_opponents(graph: nx.Graph, username: str) -> nx.Graph:
+def _add_opponents(graph: nx.Graph, username: str) -> Tuple[nx.Graph, List[str]]:
     """Add opponents to the graph."""
     if (player := get_player_data(username)) is None:
         raise ValueError(
             f"Player {username} not found. Is this a valid chess.com username?"
         )
-    for opponent in get_opponents_by_month(username):
+    opponents_and_games = get_opponents_and_games_by_month(username)
+    for opponent, games in opponents_and_games.items():
         if node := get_player_data(opponent):
-            graph = add_edge(graph, player, node)
+            graph = add_edge(graph, player, node, games)
+
+    return (graph, list(opponents_and_games.keys()))
 
 
 def add_opponents_with_depth(graph: nx.Graph, username: str, depth: int) -> nx.Graph:
@@ -120,9 +125,8 @@ def add_opponents_with_depth(graph: nx.Graph, username: str, depth: int) -> nx.G
         if current_depth > depth:
             return
 
-        _add_opponents(graph, username)
+        _, opponents = _add_opponents(graph, username)
 
-        opponents = get_opponents_by_month(username)
         for opponent in opponents:
             if get_player_data(opponent):
                 recursive_add(opponent, current_depth + 1)
@@ -174,7 +178,7 @@ def initialize_and_update_graph(n_clicks, clickData, username, depth, graph_data
         """Updates the graph with additional data based on clicked node."""
         clicked_node = clickData["points"][0]["text"]
         print(f"Clicked node: {clicked_node}")
-        _add_opponents(graph, clicked_node)
+        graph, _ = _add_opponents(graph, clicked_node)
 
     def get_default_response(graph):
         """Creates default responses when no error occurs."""

@@ -34,7 +34,7 @@ def get_player_stats(username: str):
 
 
 def main():
-    """Simply usage of the chessdotcom package from API docs."""
+    """Simple usage of the chessdotcom package from API docs."""
     cdc.Client.request_config["headers"]["User-Agent"] = (
         "My Python Application. " "Contact me at email@example.com"
     )
