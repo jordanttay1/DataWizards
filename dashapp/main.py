@@ -13,7 +13,6 @@ def main():
     """Run the Dash app."""
     app.layout = html.Div(
         id="app-container",
-        className="light-theme",
         style={
             "maxWidth": "1400px",
             "margin": "auto",
@@ -23,28 +22,6 @@ def main():
             "position": "relative",
         },
         children=[
-            # Floating theme selector
-            html.Div(
-                dcc.RadioItems(
-                    id="theme-selector",
-                    className="radio-button",
-                    options=[
-                        {"label": "Light Mode", "value": "light"},
-                        {"label": "Dark Mode", "value": "dark"},
-                    ],
-                    value="light",
-                    labelStyle={
-                        "display": "inline-block",
-                        "margin-right": "20px",
-                    },
-                    style={"margin": "20px"},
-                ),
-                style={
-                    "display": "flex",
-                    "justifyContent": "flex-end",
-                    "paddingBottom": "10px",
-                },
-            ),
             html.Div(
                 style={"flexDirection": "column"},
                 children=[
@@ -151,16 +128,6 @@ def main():
             ),
         ],
     )
-
-    @app.callback(
-        Output("app-container", "className"),
-        Input("theme-selector", "value"),
-    )
-    def toggle_theme(selected_theme):
-        if selected_theme == "dark":
-            return "dark-theme"
-        else:
-            return "light-theme"
 
     @app.callback(
         Output("network-graph", "className"),

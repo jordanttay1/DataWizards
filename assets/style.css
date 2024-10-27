@@ -1,26 +1,10 @@
 /* styles.css */
 
-/* Container with smooth transition */
-#app-container {
-    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
-}
-
-/* Body style for light theme */
+/* Body style for the app */
 body {
     margin: 0;  /* Remove default margin */
     font-family: Arial, sans-serif;  /* Set default font */
-}
-
-/* Light theme styles */
-.light-theme {
-    background-color: white;
-    color: black;
-}
-
-/* Dark theme styles */
-.dark-theme {
-    background-color: #121212;
-    color: white;
+    background-color: #f5f8fa;  /* Light background for the body */
 }
 
 /* Blur effect */
@@ -35,41 +19,13 @@ body {
     pointer-events: auto; /* Allow pointer events on the overlay */
 }
 
-/* Radio Button Styles */
-.radio-button {
-    display: inline-block;
-    margin-right: 20px;  /* Space between buttons */
-}
-
-.radio-button input[type="radio"] {
-    display: none;  /* Hide the default radio button */
-}
-
-.radio-button label {
-    cursor: pointer;  /* Cursor pointer for better UX */
-    padding: 10px 20px;  /* Add padding */
-    border-radius: 5px;  /* Rounded corners */
-    background-color: #e9ecef;  /* Light background */
-    color: #495057;  /* Text color */
-    transition: background-color 0.3s;  /* Smooth transition */
-}
-
-.radio-button input[type="radio"]:checked + label {
-    background-color: #007bff;  /* Color when selected */
-    color: white;  /* Text color when selected */
-}
-
-.radio-button label:hover {
-    background-color: #0056b3; /* Darker shade on hover */
-}
-
 /* General Input Styles */
 .input-field {
     width: 300px; /* Width for username input */
     height: 40px; /* Height for better UX */
     font-size: 16px; /* Larger font size */
     padding: 5px; /* Padding inside the input */
-    border: 1px solid #ced4da; /* Light border color */
+    border: 1px solid #007bff; /* Blue border color */
     border-radius: 5px; /* Rounded corners */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
     outline: none; /* Remove default outline */
@@ -78,7 +34,7 @@ body {
 
 .input-field:focus {
     background-color: #e9ecef; /* Light background on focus */
-    border-color: #007bff; /* Change border color on focus */
+    border-color: #0056b3; /* Change border color on focus */
 }
 
 /* Depth Input Specific Styles */
@@ -92,6 +48,44 @@ body {
     margin-right: 10px;
     margin-left: 10px;
     font-size: 16px; /* Consistent font size for labels */
+}
+
+/* Button Styles */
+button {
+    margin: 10px;
+    width: 150px;
+    height: 40px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff; /* Primary button color */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
+
+/* Background for the app container */
+#app-container {
+    background-color: #ffffff; /* Main container background */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 20px; /* Padding inside the container */
+}
+
+/* Backgrounds for Tabs */
+.dash-tabs .dash-tab {
+    background-color: #e3f2fd; /* Light blue background for tabs */
+}
+
+/* Active Tab Styles */
+.dash-tabs .dash-tab--active {
+    background-color: #1976d2; /* Darker blue for active tab */
+    color: white; /* White text for active tab */
 }
 
 /* Add a media query for responsiveness */
