@@ -17,3 +17,24 @@ pytest:
 	@poetry run pytest
 	@echo "Pytest complete."
 	@echo "----------------------------------------"
+
+requirements:
+	@echo "----------------------------------------"
+	@echo "Generating requirements.txt..."
+	@poetry export -f requirements.txt --without-hashes --output requirements.txt
+	@echo "requirements.txt generated."
+	@echo "----------------------------------------"
+
+deploy:
+	@echo "----------------------------------------"
+	@echo "Deploying GCLOUD"
+	@gcloud app deploy
+	@echo "Deployment complete."
+	@echo "----------------------------------------"
+
+serve:
+	@echo "----------------------------------------"
+	@echo "Running development server..."
+	@poetry run gunicorn -w 4 -b 127.0.0.1:8080 dashapp.main:server
+	@echo "Development server running."
+	@echo "----------------------------------------"
