@@ -1,5 +1,7 @@
-import toml
+import os
+
 from chessdotcom import Client
+from dotenv import load_dotenv
 
 from extraction.main import (
     fetch_archive_games,
@@ -7,9 +9,8 @@ from extraction.main import (
     get_player_data,
 )
 
-Client.request_config["headers"]["User-Agent"] = toml.load("config.toml")["API"][
-    "USER_AGENT"
-]
+load_dotenv()
+Client.request_config["headers"]["User-Agent"] = os.getenv("USER_AGENT")
 
 __all__ = [
     "get_player_data",

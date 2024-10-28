@@ -1,0 +1,5 @@
+runtime: python310
+entrypoint: gunicorn -w 4 -b :$PORT dashapp.main:main
+automatic_scaling:
+  min_instances: 0
+  max_instances: 5

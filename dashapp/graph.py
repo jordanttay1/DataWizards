@@ -6,10 +6,9 @@ import plotly.graph_objs as go
 from dash import Input, Output, State, callback_context
 from matplotlib import pyplot as plt
 
+from dashapp import app
 from extraction import get_opponents_and_games_by_month, get_player_data
 from network import add_edge, add_node
-
-from . import app
 
 
 def create_figure(graph: nx.Graph):
