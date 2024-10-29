@@ -1,4 +1,5 @@
-from typing import List, Tuple
+import json
+from typing import Dict, Tuple
 
 import networkx as nx
 import numpy as np
@@ -8,7 +9,7 @@ from matplotlib import pyplot as plt
 
 from dashapp import app
 from extraction import get_opponents_and_games_by_month, get_player_data
-from network import add_edge, add_node
+from network import PlayerNode, add_edge, add_node
 
 
 def create_figure(graph: nx.Graph):
@@ -89,10 +90,15 @@ def create_figure(graph: nx.Graph):
 
 def graph_to_data(graph: nx.Graph):
     """Convert the graph to store both nodes and edges."""
-    return {
+    data = {
         "nodes": list(graph.nodes(data=True)),
         "edges": list(graph.edges(data=True)),
     }
+
+    with open("graph_data.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4)
+
+    return data
 
 
 def data_to_graph(graph_data):
@@ -103,34 +109,40 @@ def data_to_graph(graph_data):
     return graph
 
 
-def _add_opponents(graph: nx.Graph, username: str) -> Tuple[nx.Graph, List[str]]:
+def _add_opponents(
+    graph: nx.Graph, username: str, player: PlayerNode | None = None
+) -> Tuple[nx.Graph, Dict[str, PlayerNode | None]]:
     """Add opponents to the graph."""
-    if (player := get_player_data(username)) is None:
+    if player is None and (player := get_player_data(username)) is None:
         raise ValueError(
             f"Player {username} not found. Is this a valid chess.com username?"
         )
     opponents_and_games = get_opponents_and_games_by_month(username)
+    opponents_node = {}
     for opponent, games in opponents_and_games.items():
-        if node := get_player_data(opponent):
-            graph = add_edge(graph, player, node, games)
+        opponents_node[opponent] = get_player_data(opponent)
+        if opponents_node[opponent] is not None:
+            graph = add_edge(graph, player, opponents_node[opponent], games)
 
-    return (graph, list(opponents_and_games.keys()))
+    return (graph, opponents_node)
 
 
-def add_opponents_with_depth(graph: nx.Graph, username: str, depth: int) -> nx.Graph:
+def add_opponents_with_depth(
+    graph: nx.Graph, username: str, depth: int, player: PlayerNode | None = None
+) -> nx.Graph:
     """Recursively add opponents to the graph up to a specified depth."""
 
-    def recursive_add(username: str, current_depth: int):
+    def recursive_add(username: str, current_depth: int, player: PlayerNode | None):
         if current_depth > depth:
             return
 
-        _, opponents = _add_opponents(graph, username)
+        _, opponents_node = _add_opponents(graph, username, player=player)
 
-        for opponent in opponents:
-            if get_player_data(opponent):
-                recursive_add(opponent, current_depth + 1)
+        for opponent, node in opponents_node.items():
+            if node:
+                recursive_add(opponent, current_depth + 1, player=node)
 
-    recursive_add(username, 1)
+    recursive_add(username, 1, player)
     return graph
 
 
@@ -147,7 +159,7 @@ def initialize_graph(username: str = "fabianocaruana", depth: int = 1) -> nx.Gra
     graph = nx.Graph()
     player = get_player_data(username)
     graph = add_node(graph, player)
-    add_opponents_with_depth(graph, username, depth)
+    add_opponents_with_depth(graph, username, depth, player=player)
     return graph
 
 
@@ -177,7 +189,8 @@ def initialize_and_update_graph(n_clicks, clickData, username, depth, graph_data
         """Updates the graph with additional data based on clicked node."""
         clicked_node = clickData["points"][0]["text"]
         print(f"Clicked node: {clicked_node}")
-        graph, _ = _add_opponents(graph, clicked_node)
+        player = PlayerNode(**dict(graph.nodes(data=True)).get(clicked_node))
+        graph, _ = _add_opponents(graph, clicked_node, player=player)
 
     def get_default_response(graph):
         """Creates default responses when no error occurs."""
