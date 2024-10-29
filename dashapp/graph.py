@@ -1,5 +1,6 @@
+import asyncio
 import json
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import networkx as nx
 import numpy as np
@@ -8,7 +9,11 @@ from dash import Input, Output, State, callback_context
 from matplotlib import pyplot as plt
 
 from dashapp import app
-from extraction import get_opponents_and_games_by_month, get_player_data
+from extraction import (
+    fetch_player_data,
+    get_opponents_and_games_by_month,
+    get_player_data,
+)
 from network import PlayerNode, add_edge, add_node
 
 
@@ -109,9 +114,9 @@ def data_to_graph(graph_data):
     return graph
 
 
-def _add_opponents(
-    graph: nx.Graph, username: str, player: PlayerNode | None = None
-) -> Tuple[nx.Graph, Dict[str, PlayerNode | None]]:
+async def _add_opponents_async(
+    graph: nx.Graph, username: str, player: Optional[PlayerNode] = None
+) -> Tuple[nx.Graph, Dict[str, Optional[PlayerNode]]]:
     """Add opponents to the graph."""
     if player is None and (player := get_player_data(username)) is None:
         raise ValueError(
@@ -119,30 +124,44 @@ def _add_opponents(
         )
     opponents_and_games = get_opponents_and_games_by_month(username)
     opponents_node = {}
-    for opponent, games in opponents_and_games.items():
-        opponents_node[opponent] = get_player_data(opponent)
-        if opponents_node[opponent] is not None:
-            graph = add_edge(graph, player, opponents_node[opponent], games)
+
+    fetch_tasks = [fetch_player_data(opponent) for opponent in opponents_and_games]
+    fetched_nodes = await asyncio.gather(*fetch_tasks)
+
+    for opponent, node in zip(opponents_and_games.keys(), fetched_nodes):
+        opponents_node[opponent] = node
+        if node is not None:
+            graph = add_edge(graph, player, node, opponents_and_games[opponent])
 
     return (graph, opponents_node)
 
 
+def _add_opponents(
+    graph: nx.Graph, username: str, player: Optional[PlayerNode] = None
+) -> Tuple[nx.Graph, Dict[str, Optional[PlayerNode]]]:
+    """Synchronous wrapper for the asynchronous _add_opponents_async."""
+    return asyncio.run(_add_opponents_async(graph, username, player))
+
+
 def add_opponents_with_depth(
-    graph: nx.Graph, username: str, depth: int, player: PlayerNode | None = None
+    graph: nx.Graph, username: str, depth: int, player: Optional[PlayerNode] = None
 ) -> nx.Graph:
     """Recursively add opponents to the graph up to a specified depth."""
 
-    def recursive_add(username: str, current_depth: int, player: PlayerNode | None):
+    async def recursive_add(
+        username: str, current_depth: int, player: Optional[PlayerNode]
+    ):
         if current_depth > depth:
             return
 
-        _, opponents_node = _add_opponents(graph, username, player=player)
+        _, opponents_node = await _add_opponents_async(graph, username, player)
 
         for opponent, node in opponents_node.items():
             if node:
-                recursive_add(opponent, current_depth + 1, player=node)
+                await recursive_add(opponent, current_depth + 1, node)
 
-    recursive_add(username, 1, player)
+    asyncio.run(recursive_add(username, 1, player))
+
     return graph
 
 

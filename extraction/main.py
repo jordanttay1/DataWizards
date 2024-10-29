@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -91,6 +92,11 @@ def get_opponents_and_games_by_month(
         print(f"No opponents found for {username} in {year}-{month}")
 
     return opponents_games
+
+
+async def fetch_player_data(username: str) -> Optional[PlayerNode]:
+    """Fetch the player data for a given username asynchronously."""
+    return await asyncio.to_thread(get_player_data, username)
 
 
 def get_player_data(username: str) -> Optional[PlayerNode]:
