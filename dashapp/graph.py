@@ -1,5 +1,4 @@
 import asyncio
-import json
 from typing import Dict, Optional, Tuple
 
 import networkx as nx
@@ -99,9 +98,6 @@ def graph_to_data(graph: nx.Graph):
         "nodes": list(graph.nodes(data=True)),
         "edges": list(graph.edges(data=True)),
     }
-
-    with open("graph_data.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4)
 
     return data
 
