@@ -25,7 +25,7 @@ requirements:
 	@echo "requirements.txt generated."
 	@echo "----------------------------------------"
 
-deploy:
+deploy: requirements
 	@echo "----------------------------------------"
 	@echo "Deploying GCLOUD"
 	@gcloud app deploy
