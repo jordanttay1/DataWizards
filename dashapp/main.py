@@ -144,6 +144,7 @@ def remove_blur(n_clicks):
     Input("graph-data", "data"),
 )
 def render_analytics(tab, graph_data):
+    """Render the content for the selected tab."""
     if not graph_data:
         return html.Div([html.H3("No graph data available.")])
     graph = data_to_graph(graph_data)

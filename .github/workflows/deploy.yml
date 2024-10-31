@@ -1,0 +1,36 @@
+name: Deploy MkDocs to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH  # Add Poetry to the PATH
+
+      - name: Install dependencies
+        run: |
+          poetry install --only=docs
+
+      - name: Build MkDocs
+        run: |
+          poetry run mkdocs build
+
+      - name: Deploy to GitHub Pages
+        run: |
+          poetry run mkdocs gh-deploy --force

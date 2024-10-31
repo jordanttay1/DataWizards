@@ -1,0 +1,54 @@
+site_name: Chess.com Anomaly Detection
+repo_name: DataWizards
+repo_url: https://github.com/jordanttay1/DataWizards
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          docstring_style: google
+          rendering:
+            show_source: true
+
+theme:
+  name: material
+  favico: assets/favicon.ico
+  logo: assets/chess-solid.svg
+  palette:
+    - scheme: auto
+      primary: indigo
+      accent: yellow
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - scheme: default
+      primary: indigo
+      accent: yellow
+      media: "(prefers-color-scheme: light)"
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: yellow
+      media: "(prefers-color-scheme: dark)"
+      toggle:
+        icon: material/weather-night
+        name: Switch to system preference
+  features:
+    - optimize
+    - content.code.annotate
+    - palette.toggle
+
+nav:
+  - Home: README.md
+  - Contributing: CONTRIBUTING.md
+  - Application: https://cse6242-439117.wl.r.appspot.com
+  - Anomaly Detection: anomaly_detection.md
+  - Reference:
+    - Cache: reference/cache.md
+    - Network: reference/network.md
+    - DashApp: reference/dashapp.md
+    - Extraction: reference/extraction.md
+  - About: about.md
