@@ -1,11 +1,19 @@
 """Cache module aimed to contain all the data storage and retrieval logic."""
 
 import json
+import os
 from functools import wraps
 from pathlib import Path
 
-CACHE_DIR = Path("data_cache")
-CACHE_DIR.mkdir(exist_ok=True)
+IS_GCP = (
+    os.getenv("GAE_ENV") is not None or os.getenv("GOOGLE_CLOUD_PROJECT") is not None
+)
+
+if not IS_GCP:
+    CACHE_DIR = Path("data_cache")
+    CACHE_DIR.mkdir(exist_ok=True)
+else:
+    print("Running on Google Cloud Platform. Disabling cache.")
 
 
 def load_json(file_path: Path) -> dict:
@@ -28,6 +36,8 @@ def cache(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        if IS_GCP:  # Disable cache on GCP
+            return func(*args, **kwargs)
         cache_key = f"{func.__name__}/{'_'.join(map(str, args))}.json"
         cache_path = CACHE_DIR / cache_key
         cache_path.parent.mkdir(exist_ok=True)
