@@ -38,3 +38,10 @@ serve:
 	@poetry run gunicorn -w 4 -b 127.0.0.1:8080 dashapp.main:server
 	@echo "Development server running."
 	@echo "----------------------------------------"
+
+serve-dev:
+	@echo "----------------------------------------"
+	@echo "Running development server..."
+	@poetry run python dashapp/main.py
+	@echo "Development server running."
+	@echo "----------------------------------------"
