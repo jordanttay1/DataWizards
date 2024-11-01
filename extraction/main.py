@@ -52,7 +52,16 @@ def get_opponents_and_games_by_month(
     if month is None:
         month = datetime.now().month
 
-    games_data = get_player_games_by_month(username, year, month).get("games", [])
+    try:
+        games_data = get_player_games_by_month(username, year, month).get("games", [])
+    except ChessDotComError as exc:
+        if exc.status_code == 0:
+            print(
+                f"No games found for {username} in {year}-{month}. {year}-{month} is in the future."
+            )
+            return {}
+        else:
+            raise
     opponents_games: Dict[str, List[GameEdge]] = {}
 
     for game in games_data:
