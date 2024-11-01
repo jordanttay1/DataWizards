@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from dash import Input, Output, dcc, html
 
 from dashapp import app
@@ -34,27 +36,66 @@ app.layout = html.Div(
                     ],
                     style={"textAlign": "center"},
                 ),
-                # Username input and depth counter
+                # Username input, Date input, depth counter
                 html.Div(
-                    style={"textAlign": "center"},
+                    style={
+                        "textAlign": "center",
+                        "display": "flex",
+                        "justifyContent": "center",
+                    },
                     children=[
-                        dcc.Input(
-                            id="username-input",
-                            type="text",
-                            placeholder="Enter Chess.com Username",
-                            className="input-field",
+                        html.Div(
+                            children=[
+                                html.P("Chess.com Username:", className="input-label"),
+                                dcc.Input(
+                                    id="username-input",
+                                    type="text",
+                                    placeholder="Enter Username",
+                                    className="input-field",
+                                    style={"margin": "0 5px"},
+                                ),
+                            ],
                         ),
-                        html.P(
-                            "Depth:",
-                            className="input-label",
+                        html.Div(
+                            children=[
+                                html.P("Year:", className="input-label"),
+                                dcc.Input(
+                                    id="year-input",
+                                    type="number",
+                                    value=datetime.now().year,
+                                    min=2008,
+                                    max=datetime.now().year,
+                                    className="input-field",
+                                    style={"width": "80px", "margin": "0 5px"},
+                                ),
+                            ],
                         ),
-                        dcc.Input(
-                            id="depth-input",
-                            type="number",
-                            value=1,
-                            min=1,
-                            max=5,
-                            className="input-field depth-input",
+                        html.Div(
+                            children=[
+                                html.P("Month:", className="input-label"),
+                                dcc.Input(
+                                    id="month-input",
+                                    type="number",
+                                    value=datetime.now().month,
+                                    min=1,
+                                    max=12,
+                                    className="input-field",
+                                    style={"width": "80px", "margin": "0 5px"},
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            children=[
+                                html.P("Depth:", className="input-label"),
+                                dcc.Input(
+                                    id="depth-input",
+                                    type="number",
+                                    value=1,
+                                    min=1,
+                                    max=5,
+                                    className="input-field depth-input",
+                                ),
+                            ],
                         ),
                     ],
                 ),

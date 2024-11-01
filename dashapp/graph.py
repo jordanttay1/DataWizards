@@ -111,14 +111,18 @@ def data_to_graph(graph_data):
 
 
 async def _add_opponents_async(
-    graph: nx.Graph, username: str, player: Optional[PlayerNode] = None
+    graph: nx.Graph,
+    username: str,
+    year: Optional[int],
+    month: Optional[int],
+    player: Optional[PlayerNode] = None,
 ) -> Tuple[nx.Graph, Dict[str, Optional[PlayerNode]]]:
     """Add opponents to the graph."""
     if player is None and (player := get_player_data(username)) is None:
         raise ValueError(
             f"Player {username} not found. Is this a valid chess.com username?"
         )
-    opponents_and_games = get_opponents_and_games_by_month(username)
+    opponents_and_games = get_opponents_and_games_by_month(username, year, month)
     opponents_node = {}
 
     fetch_tasks = [fetch_player_data(opponent) for opponent in opponents_and_games]
@@ -133,14 +137,23 @@ async def _add_opponents_async(
 
 
 def _add_opponents(
-    graph: nx.Graph, username: str, player: Optional[PlayerNode] = None
+    graph: nx.Graph,
+    username: str,
+    year: Optional[int],
+    month: Optional[int],
+    player: Optional[PlayerNode] = None,
 ) -> Tuple[nx.Graph, Dict[str, Optional[PlayerNode]]]:
     """Synchronous wrapper for the asynchronous _add_opponents_async."""
-    return asyncio.run(_add_opponents_async(graph, username, player))
+    return asyncio.run(_add_opponents_async(graph, username, year, month, player))
 
 
 def add_opponents_with_depth(
-    graph: nx.Graph, username: str, depth: int, player: Optional[PlayerNode] = None
+    graph: nx.Graph,
+    username: str,
+    year: Optional[int],
+    month: Optional[int],
+    depth: int,
+    player: Optional[PlayerNode] = None,
 ) -> nx.Graph:
     """Recursively add opponents to the graph up to a specified depth."""
 
@@ -150,7 +163,9 @@ def add_opponents_with_depth(
         if current_depth > depth:
             return
 
-        _, opponents_node = await _add_opponents_async(graph, username, player)
+        _, opponents_node = await _add_opponents_async(
+            graph, username, year, month, player
+        )
 
         for opponent, node in opponents_node.items():
             if node:
@@ -161,7 +176,12 @@ def add_opponents_with_depth(
     return graph
 
 
-def initialize_graph(username: str = "fabianocaruana", depth: int = 1) -> nx.Graph:
+def initialize_graph(
+    username: str = "fabianocaruana",
+    year: Optional[int] = None,
+    month: Optional[int] = None,
+    depth: int = 1,
+) -> nx.Graph:
     """_summary_
 
     Args:
@@ -174,38 +194,50 @@ def initialize_graph(username: str = "fabianocaruana", depth: int = 1) -> nx.Gra
     graph = nx.Graph()
     player = get_player_data(username)
     graph = add_node(graph, player)
-    add_opponents_with_depth(graph, username, depth, player=player)
+    add_opponents_with_depth(graph, username, year, month, depth, player=player)
     return graph
 
 
 @app.callback(
-    Output("network-graph", "figure"),
-    Output("graph-data", "data"),
-    Output("graph-error", "displayed"),
-    Output("graph-error", "message"),
-    Input("init-button", "n_clicks"),
-    Input("network-graph", "clickData"),
-    State("username-input", "value"),
-    State("depth-input", "value"),
-    State("graph-data", "data"),
+    [
+        Output("network-graph", "figure"),
+        Output("graph-data", "data"),
+        Output("graph-error", "displayed"),
+        Output("graph-error", "message"),
+    ],
+    [
+        Input("init-button", "n_clicks"),
+        Input("network-graph", "clickData"),
+    ],
+    [
+        State("username-input", "value"),
+        State("year-input", "value"),
+        State("month-input", "value"),
+        State("depth-input", "value"),
+        State("graph-data", "data"),
+    ],
 )
-def initialize_and_update_graph(n_clicks, clickData, username, depth, graph_data):
+def initialize_and_update_graph(
+    n_clicks, click_data, username, year, month, depth, graph_data
+):
     """Initialize and update the graph when the initialize button is clicked."""
 
     def initialize_new_graph(username, depth):
         """Initializes a new graph with given username and depth."""
         depth_value = int(depth) if depth else 1
         user = username or "fabianocaruana"
-        graph = initialize_graph(user, depth_value)
+        graph = initialize_graph(user, year, month, depth_value)
         print(f"Initialized graph with {username}.")
         return graph
 
-    def update_graph_from_click(graph, clickData):
+    def update_graph_from_click(
+        graph: nx.Graph, click_data: dict, year: Optional[int], month: Optional[int]
+    ):
         """Updates the graph with additional data based on clicked node."""
-        clicked_node = clickData["points"][0]["text"]
+        clicked_node = click_data["points"][0]["text"]
         print(f"Clicked node: {clicked_node}")
-        player = PlayerNode(**dict(graph.nodes(data=True)).get(clicked_node))
-        graph, _ = _add_opponents(graph, clicked_node, player=player)
+        player = PlayerNode(**dict(graph.nodes(data=True)).get(clicked_node) or {})
+        graph, _ = _add_opponents(graph, clicked_node, year, month, player=player)
 
     def get_default_response(graph):
         """Creates default responses when no error occurs."""
@@ -221,8 +253,8 @@ def initialize_and_update_graph(n_clicks, clickData, username, depth, graph_data
 
         graph = data_to_graph(graph_data)
 
-        if clickData is not None:
-            update_graph_from_click(graph, clickData)
+        if click_data is not None:
+            update_graph_from_click(graph, click_data, year, month)
 
         return get_default_response(graph)
 
