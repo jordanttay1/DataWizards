@@ -2,7 +2,7 @@
 
 The following provides a detailed explanation on how to contribute to this project.
 
-## Setup
+## Setup/Installation
 
 This project leverages [poetry](http://python-poetry.org) as its package & environment management.  
 To get started, simply run `poetry install --with dev` to setup and install the necessary dependencies.
@@ -19,8 +19,9 @@ Execute `make tests` to ensure the project was cloned successfully, and leverage
 
 This project leverages Plotly Dash to serve a web app.
 
-Execute `make serve` to start running a local server of the app for testing.
+Execute `make serve_dev` to start running a local server of the app for testing.  
+Or execute `make serve` to serve the site similar to production.
 
 ## Deploy
 
-This project is deployed on GCP. Once `gcloud` is installed locally, execute `make deploy` to deploy the app on GCP.
+This project is deployed on GCP. Once `gcloud` is installed and configured locally, execute `make deploy` to deploy the app on GCP.
