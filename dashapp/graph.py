@@ -8,6 +8,7 @@ from dash import Input, Output, State, callback_context
 from matplotlib import pyplot as plt
 
 from dashapp import app
+from dashapp.filters import is_within_country, is_within_rated_range
 from extraction import (
     fetch_player_data,
     get_opponents_and_games_by_month,
@@ -124,16 +125,28 @@ async def _add_opponents_async(
         raise ValueError(
             f"Player {username} not found. Is this a valid chess.com username?"
         )
+    opponents_node: dict = {}
+
+    if not is_within_rated_range(player):
+        return (graph, opponents_node)
+    if not is_within_country(player):
+        return (graph, opponents_node)
+
     opponents_and_games = get_opponents_and_games_by_month(username, year, month)
-    opponents_node = {}
 
     fetch_tasks = [fetch_player_data(opponent) for opponent in opponents_and_games]
     fetched_nodes = await asyncio.gather(*fetch_tasks)
 
     for opponent, node in zip(opponents_and_games.keys(), fetched_nodes):
+        if node is None:
+            continue
+        if not is_within_rated_range(node):
+            continue
+        if not is_within_country(node):
+            continue
+
         opponents_node[opponent] = node
-        if node is not None:
-            graph = add_edge(graph, player, node, opponents_and_games[opponent])
+        graph = add_edge(graph, player, node, opponents_and_games[opponent])
 
     return (graph, opponents_node)
 
