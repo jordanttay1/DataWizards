@@ -19,7 +19,7 @@ Execute `make tests` to ensure the project was cloned successfully, and leverage
 
 This project leverages Plotly Dash to serve a web app.
 
-Execute `make serve_dev` to start running a local server of the app for testing.  
+Execute `make serve-dev` to start running a local server of the app for testing.  
 Or execute `make serve` to serve the site similar to production.
 
 ## Deploy
