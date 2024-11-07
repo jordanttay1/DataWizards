@@ -98,7 +98,9 @@ def get_opponents_and_games_by_month(
         opponents_games[opponent_username].append(game_edge)
 
     if not opponents_games:
-        print(f"No opponents found for {username} in {year}-{month}")
+        raise ValueError(
+            f"No opponents found for {username} in {year}-{month}.\nConsider a different user or date."
+        )
 
     return opponents_games
 

@@ -58,7 +58,9 @@ def create_figure(graph: nx.Graph):
     node_y = [pos[node][1] for node in graph.nodes()]
     node_text = [str(node) for node in graph.nodes()]
     ratings = [graph.nodes[node].get("rating", 0) for node in graph.nodes()]
-    norm_ratings = (ratings - np.min(ratings)) / (np.max(ratings) - np.min(ratings))
+    norm_ratings = (ratings - np.min(ratings)) / max(
+        1, (np.max(ratings) - np.min(ratings))
+    )
     node_colors = cmap(norm_ratings)
 
     nodes = go.Scatter(
@@ -224,9 +226,8 @@ def initialize_and_update_graph(
 
     def initialize_new_graph(username, depth):
         """Initializes a new graph with given username and depth."""
-        depth_value = int(depth) if depth else 1
         user = username or "fabianocaruana"
-        graph = initialize_graph(user, year, month, depth_value)
+        graph = initialize_graph(user, year, month, depth)
         print(f"Initialized graph with {username}.")
         return graph
 
@@ -248,7 +249,11 @@ def initialize_and_update_graph(
         if graph_data is None or (
             ctx.triggered and ctx.triggered[0]["prop_id"] == "init-button.n_clicks"
         ):
-            graph = initialize_new_graph(username, depth)
+            try:
+                graph = initialize_new_graph(username, depth)
+            except ValueError as e:
+                graph = initialize_new_graph(username, 0)
+                raise e
             return get_default_response(graph)
 
         graph = data_to_graph(graph_data)
