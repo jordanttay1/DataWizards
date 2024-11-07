@@ -251,9 +251,8 @@ def initialize_and_update_graph(
         ):
             try:
                 graph = initialize_new_graph(username, depth)
-            except ValueError as e:
+            except ValueError:
                 graph = initialize_new_graph(username, 0)
-                raise e
             return get_default_response(graph)
 
         graph = data_to_graph(graph_data)
