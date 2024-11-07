@@ -16,7 +16,7 @@ def api_429_retry(func):
             except cdc.ChessDotComError as exc:
                 if exc.status_code == 429:
                     print("Retrying after some seconds...")
-                    time.sleep(random.randint(1, 5))
+                    time.sleep(random.randint(5, 15))
                     continue
                 else:
                     raise
