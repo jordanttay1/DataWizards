@@ -76,4 +76,7 @@ def add_edge(
             weight=weight,
             data=[asdict(edge) for edge in edge_data],
         )
+    else:
+        edge = graph[node1.username][node2.username]
+        edge["data"].extend([asdict(edge) for edge in edge_data])
     return graph
