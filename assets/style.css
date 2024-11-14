@@ -1,56 +1,47 @@
-/* styles.css */
-
-/* Body style for the app */
 body {
-    margin: 0;  /* Remove default margin */
-    font-family: Arial, sans-serif;  /* Set default font */
-    background-color: #f5f8fa;  /* Light background for the body */
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f8fa;
 }
 
-/* Blur effect */
 .blur {
-    filter: blur(4px); /* Initial blur effect */
-    pointer-events: none; /* Disable pointer events when not blurred */
+    filter: blur(4px);
+    pointer-events: none;
 }
 
-/* When the blur is removed */
 .no-blur {
-    filter: none; /* Remove blur */
-    pointer-events: auto; /* Allow pointer events on the overlay */
+    filter: none;
+    pointer-events: auto;
 }
 
-/* General Input Styles */
 .input-field {
-    width: 300px; /* Width for username input */
-    height: 40px; /* Height for better UX */
-    font-size: 16px; /* Larger font size */
-    padding: 5px; /* Padding inside the input */
-    border: 1px solid #007bff; /* Blue border color */
-    border-radius: 5px; /* Rounded corners */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    outline: none; /* Remove default outline */
-    transition: border-color 0.3s; /* Smooth border transition */
+    width: 300px;
+    height: 40px;
+    font-size: 16px;
+    padding: 5px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    outline: none;
+    transition: border-color 0.3s;
 }
 
 .input-field:focus {
-    background-color: #e9ecef; /* Light background on focus */
-    border-color: #0056b3; /* Change border color on focus */
+    background-color: #e9ecef;
+    border-color: #0056b3;
 }
 
-/* Depth Input Specific Styles */
 .depth-input {
-    width: 60px; /* Width for depth input */
+    width: 60px;
 }
 
-/* Label Styles */
 .input-label {
     display: inline;
     margin-right: 10px;
     margin-left: 10px;
-    font-size: 16px; /* Consistent font size for labels */
+    font-size: 16px;
 }
 
-/* Button Styles */
 button {
     margin: 10px;
     width: 150px;
@@ -58,39 +49,35 @@ button {
     font-size: 16px;
     font-weight: bold;
     color: white;
-    background-color: #007bff; /* Primary button color */
+    background-color: #007bff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s; /* Smooth transition */
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #0056b3; /* Darker shade on hover */
+    background-color: #0056b3;
 }
 
-/* Background for the app container */
 #app-container {
-    background-color: #ffffff; /* Main container background */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    padding: 20px; /* Padding inside the container */
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
 }
 
-/* Backgrounds for Tabs */
 .dash-tabs .dash-tab {
-    background-color: #e3f2fd; /* Light blue background for tabs */
+    background-color: #e3f2fd;
 }
 
-/* Active Tab Styles */
 .dash-tabs .dash-tab--active {
-    background-color: #1976d2; /* Darker blue for active tab */
-    color: white; /* White text for active tab */
+    background-color: #1976d2;
+    color: white;
 }
 
-/* Add a media query for responsiveness */
 @media (max-width: 600px) {
     .input-field {
-        width: 100%; /* Full width on smaller screens */
+        width: 100%;
     }
 }
