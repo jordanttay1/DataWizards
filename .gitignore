@@ -164,3 +164,7 @@ cython_debug/
 data_cache
 requirements.txt
 .vscode
+submission/
+*.pptx
+*.docx
+*.zip

@@ -1,17 +1,19 @@
 # Big Chess Analysis by team DataWizards
 
+## DESCRIPTION
+
 Big Chess Analysis using the chess.com [API](https://chesscom.readthedocs.io/en/latest/) and [API Wrapper](https://github.com/sarartur/chess.com).
 
-## Introduction
+## INTRODUCTION
 
 Learn more about the community of players you or your opponent's are part of in Chess.com! Deep-dive into the chess.com network and identify & report unusual anomalies in games or players!
 
-## Installation
+## INSTALLATION
 
 No installation required! Simply visit our [site](https://cse6242-439117.wl.r.appspot.com) and start exploring.
 Looking to contribute? Visit [CONTRIBUTING](CONTRIBUTING.md) for more details.
 
-## Execution
+## EXECUTION
 
 ### Exploration
 
