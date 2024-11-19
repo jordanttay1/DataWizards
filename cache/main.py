@@ -43,7 +43,10 @@ def cache(func):
         cache_path.parent.mkdir(exist_ok=True)
 
         if cache_path.exists():
-            return load_json(cache_path)
+            try:
+                return load_json(cache_path)
+            except json.JSONDecodeError:
+                print(f"Error loading cache for {cache_path}. Recomputing...")
 
         if data := func(*args, **kwargs):
             save_json(data, cache_path)
