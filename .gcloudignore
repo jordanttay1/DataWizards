@@ -42,3 +42,7 @@ Brandon/
 
 *.ipynb
 *.md
+*.pptx
+*.docx
+*.pdf
+submission/
