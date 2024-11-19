@@ -45,6 +45,13 @@ _Easter-Egg: You can skip the inputs and simply generate the graph right away!_
 
 Once the graph is loaded, you're welcome to click on graph'ed nodes, and explore the space further.
 
+If struggling to find good inputs. This project was tested using:
+
+- Username: fabianocaruana
+- Year: 2024
+- Month: 10
+- Depth: 3 (Optional)
+
 ### Analytics
 
 Analytics of the graph is generated live as the graph adapts. Review the analytics, and consider reporting anomalies to chess.com!
