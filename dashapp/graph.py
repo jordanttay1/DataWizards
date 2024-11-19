@@ -8,7 +8,6 @@ from dash import Input, Output, State, callback_context
 from matplotlib import pyplot as plt
 
 from dashapp import app
-from dashapp.filters import is_within_country, is_within_rated_range
 from extraction import (
     fetch_player_data,
     get_opponents_and_games_by_month,
@@ -127,10 +126,11 @@ async def _add_opponents_async(
         )
     opponents_node: dict = {}
 
-    if not is_within_rated_range(player):
-        return (graph, opponents_node)
-    if not is_within_country(player):
-        return (graph, opponents_node)
+    # Add filters to reduce data
+    # if not is_within_rated_range(player):
+    #     return (graph, opponents_node)
+    # if not is_within_country(player):
+    #     return (graph, opponents_node)
 
     opponents_and_games = get_opponents_and_games_by_month(username, year, month)
 
@@ -140,10 +140,10 @@ async def _add_opponents_async(
     for opponent, node in zip(opponents_and_games.keys(), fetched_nodes):
         if node is None:
             continue
-        if not is_within_rated_range(node):
-            continue
-        if not is_within_country(node):
-            continue
+        # if not is_within_rated_range(node):
+        #     continue
+        # if not is_within_country(node):
+        #     continue
 
         opponents_node[opponent] = node
         graph = add_edge(graph, player, node, opponents_and_games[opponent])
@@ -173,7 +173,7 @@ def add_opponents_with_depth(
     """Recursively add opponents to the graph up to a specified depth."""
 
     async def recursive_add(
-        username: str, current_depth: int, player: Optional[PlayerNode]
+        graph: nx.Graph, username: str, current_depth: int, player: Optional[PlayerNode]
     ):
         if current_depth > depth:
             return
@@ -184,9 +184,9 @@ def add_opponents_with_depth(
 
         for opponent, node in opponents_node.items():
             if node:
-                await recursive_add(opponent, current_depth + 1, node)
+                await recursive_add(graph, opponent, current_depth + 1, node)
 
-    asyncio.run(recursive_add(username, 1, player))
+    asyncio.run(recursive_add(graph, username, 1, player))
 
     return graph
 
@@ -209,7 +209,7 @@ def initialize_graph(
     graph = nx.Graph()
     player = get_player_data(username)
     graph = add_node(graph, player)
-    add_opponents_with_depth(graph, username, year, month, depth, player=player)
+    graph = add_opponents_with_depth(graph, username, year, month, depth, player=player)
     return graph
 
 
@@ -257,11 +257,12 @@ def initialize_and_update_graph(
         """Creates default responses when no error occurs."""
         return create_figure(graph), graph_to_data(graph), False, ""
 
-    try:
+    def init_button_clicked():
         ctx = callback_context
-        if graph_data is None or (
-            ctx.triggered and ctx.triggered[0]["prop_id"] == "init-button.n_clicks"
-        ):
+        return ctx.triggered and ctx.triggered[0]["prop_id"] == "init-button.n_clicks"
+
+    try:
+        if graph_data is None or (init_button_clicked()):
             try:
                 graph = initialize_new_graph(username, depth)
             except ValueError:
