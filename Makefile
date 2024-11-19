@@ -1,10 +1,10 @@
 
 .PHONY: tests pre-commit pytest deploy serve serve-dev
 
-submission: submission_dir README.txt requirements.txt DOC
+submission: submission_dir README.txt requirements.txt DOC CODE
 	@echo "----------------------------------------"
 	@echo "Creating team135final.zip..."
-	@zip -r team135final.zip submission/*
+	@(cd submission && zip -r ../team135final.zip .)
 	@echo "team135final.zip created."
 	@echo "----------------------------------------"
 
@@ -82,6 +82,6 @@ DOC/team135poster.pdf: submission_dir
 CODE: submission_dir
 	@echo "----------------------------------------"
 	@echo "Copying code files to submission/CODE..."
-	@rsync -av --delete --prune-empty-dirs --exclude=".venv/" --exclude='tests/' --exclude='docs/' --include='*/' --include='*.py' --include='*.ipynb' --include='*.toml' --include='requirements.txt' --exclude='*'  . submission/CODE
+	@rsync -av --delete --prune-empty-dirs --exclude=".venv/" --exclude='tests/' --exclude='docs/' --exclude='submission' --include='*/' --include='*.py' --include='*.ipynb' --include='*.toml' --include='poetry.lock' --include='Makefile' --include='requirements.txt' --exclude='*'  . submission/CODE
 	@echo "Code files copied."
 	@echo "----------------------------------------"
