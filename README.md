@@ -5,6 +5,7 @@
 The following project is a Big Chess Analysis using the chess.com [API](https://chesscom.readthedocs.io/en/latest/) and [API Wrapper](https://github.com/sarartur/chess.com).
 
 This project is open-source on [Github](https://github.com/jordanttay1/DataWizards), with published docs at [Documentation](https://jordanttay1.github.io/DataWizards/).
+
 Looking to contribute? Visit [CONTRIBUTING](CONTRIBUTING.md) for more details.
 
 ## INTRODUCTION
