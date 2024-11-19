@@ -33,7 +33,7 @@ If local execution is preferred:
 
 - `poetry` is highly recommended to enable `poetry run`.
   - Alternatively, leverage `requirements.txt` & `python -m venv`.
-- `make serve_dev` to launch the webapp on localhost (using Dash)
+- `make serve-dev` to launch the webapp on localhost (using Dash)
   -- Alternatively `poetry run python dashapp/main.py`
   -- Alternatively `make serve` to launch with gunicorn on 127.0.0.1:8080
 
