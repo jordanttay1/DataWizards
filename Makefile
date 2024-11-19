@@ -82,6 +82,6 @@ DOC/team135poster.pdf: submission_dir
 CODE: submission_dir
 	@echo "----------------------------------------"
 	@echo "Copying code files to submission/CODE..."
-	@rsync -av --delete --prune-empty-dirs --exclude=".venv/" --exclude='tests/' --exclude='docs/' --exclude='submission' --include='*/' --include='*.py' --include='*.ipynb' --include='*.toml' --include='poetry.lock' --include='Makefile' --include='requirements.txt' --exclude='*'  . submission/CODE
+	@rsync -av --delete --prune-empty-dirs --exclude=".venv/" --exclude='tests/' --exclude='docs/' --exclude='submission' --include='*/' --include='*.py' --include='*.ipynb' --include='*.md' --include='*.toml' --include='poetry.lock' --include='Makefile' --include='requirements.txt' --exclude='*'  . submission/CODE
 	@echo "Code files copied."
 	@echo "----------------------------------------"
