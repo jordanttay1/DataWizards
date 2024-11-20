@@ -1,3 +1,4 @@
+import networkx as nx
 import numpy as np
 import pandas as pd
 from dash import html
@@ -79,11 +80,24 @@ def _detect_probability_anomalies(graph) -> pd.DataFrame:
     return pd.DataFrame(anomalies)
 
 
+def _page_rank_scores(graph) -> pd.DataFrame:
+    """Calculate the PageRank scores for the graph."""
+    scores = nx.pagerank(graph)
+    scores_df = pd.DataFrame(
+        [(node, "PageRank", score) for node, score in scores.items()],
+        columns=["Source", "Type", "Value"],
+    )
+
+    percentile = np.percentile(scores_df["Value"], 98)
+    return scores_df[scores_df["Value"] > percentile]
+
+
 def create_anomaly_stats(graph):
     """Create the content for the Anomaly Detection tab."""
     anomalies = _detect_anomalies(graph)
     probability_anomalies = _detect_probability_anomalies(graph)
-    anomalies = pd.concat([anomalies, probability_anomalies])
+    page_rank_anomalies = _page_rank_scores(graph)
+    anomalies = pd.concat([anomalies, probability_anomalies, page_rank_anomalies])
 
     if anomalies.empty:
         return html.Div([html.H3("No anomalies detected in the graph.")])
