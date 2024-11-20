@@ -10,14 +10,70 @@ def _detect_anomalies(graph) -> pd.DataFrame:
     anomalies = []
 
     weight_threshold = np.percentile(
-        [data.get("weight", 1) for _, _, data in graph.edges(data=True)], 90
+        [data.get("weight", 1) for _, _, data in graph.edges(data=True)], 99
     )
 
     for edge in graph.edges(data=True):
         weight = edge[-1].get("weight", 1)
         if weight > weight_threshold:
             anomalies.append(
-                {"Source": f"{edge[0]} - {edge[1]}", "Type": "Weight", "Value": weight}
+                {
+                    "Source": f"{edge[0]} - {edge[1]}",
+                    "Type": "Rating Difference",
+                    "Value": weight,
+                }
+            )
+
+    return pd.DataFrame(anomalies)
+
+
+def _detect_probability_anomalies(graph) -> pd.DataFrame:
+    """Detect anomalies in the graph based on Probability of Win vs Actual Win."""
+
+    def calculate_win_probability(rating_a: int, rating_b: int) -> float:
+        """Calculate the win probability of player A against player B."""
+        return 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
+
+    def get_player_result(player: dict) -> float:
+        if player.get("result") == "win":
+            return 1
+        elif player.get("result") == "stalemate":
+            return 0.5
+        return 0
+
+    player_games: dict = {}
+    anomalies = []
+    for edge in graph.edges(data=True):
+        if not edge[-1].get("data"):
+            print("No data - skipping")
+            continue
+        games = edge[-1].get("data", 0)
+        for game in games:
+            player_a = game.get("white", {})
+            player_b = game.get("black", {})
+
+            player_a_probability = calculate_win_probability(
+                player_a.get("rating"), player_b.get("rating")
+            )
+            player_b_probability = calculate_win_probability(
+                player_b.get("rating"), player_a.get("rating")
+            )
+
+            player_a_result = get_player_result(player_a) - player_a_probability
+            player_b_result = get_player_result(player_b) - player_b_probability
+
+            player_games[player_a["username"]] = (
+                player_games.get(player_a["username"], 0) + player_a_result
+            )
+            player_games[player_b["username"]] = (
+                player_games.get(player_b["username"], 0) + player_b_result
+            )
+
+    percentile = np.percentile(list(player_games.values()), 98)
+    for player, result in player_games.items():
+        if result > percentile:
+            anomalies.append(
+                {"Source": player, "Type": "Win Probability", "Value": result}
             )
 
     return pd.DataFrame(anomalies)
@@ -26,6 +82,8 @@ def _detect_anomalies(graph) -> pd.DataFrame:
 def create_anomaly_stats(graph):
     """Create the content for the Anomaly Detection tab."""
     anomalies = _detect_anomalies(graph)
+    probability_anomalies = _detect_probability_anomalies(graph)
+    anomalies = pd.concat([anomalies, probability_anomalies])
 
     if anomalies.empty:
         return html.Div([html.H3("No anomalies detected in the graph.")])
